@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- 指定了POM模型的版本, 对于Maven2或Maven3来说, modelVersion只能是4.0 -->
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.juege</groupId>
+    <artifactId>JuegeRiskCtrlSys</artifactId>
+    <!-- 根模块的pom.xml的packaging标签值必须为pom -->
+    <packaging>pom</packaging>
+    <name>JuegeRiskControlSystem</name>
+    <version>1.0-SNAPSHOT</version>
+
+    <!-- 子模块 -->
+    <modules>
+        <!-- 表现层 -->
+        <module>RiskEngine-api</module>
+        <!-- 公共依赖层 -->
+        <module>RiskEngine-commons</module>
+        <!-- 数据访问层 -->
+        <module>RiskEngine-dao</module>
+        <!-- 模型层 -->
+        <module>RiskEngine-model</module>
+        <!-- 业务逻辑层 -->
+        <module>RiskEngine-service</module>
+        <!-- 工具层 -->
+        <module>RiskEngine-utils</module>
+        <!-- flink操作层 -->
+        <module>RiskEngine-flink</module>
+    </modules>
+
+    <properties>
+        <!-- 版本需要严格一致的组件 start -->
+        <!-- JDK8 还是主流 -->
+        <java.version>1.8</java.version>
+        <!-- 暂时不要升级SpringBoot3, SpringBoot支持的JDK最低版本是17 -->
+        <springboot.version>2.6.11</springboot.version>
+        <!-- Flink 1.12之后有较大的更改, 1.12之前的版本不建议再学 -->
+        <flink.version>1.14.5</flink.version>
+        <!-- fastjson2 -->
+        <!-- 注意：使用的是fastjson2,不是fastjson1 -->
+        <fastjson2.version>2.0.12</fastjson2.version>
+        <!-- 注意：slf4j要使用的版本是 1.7 -->
+        <slf4j.version>1.7.36</slf4j.version>
+        <!-- 即 com.mysql.cj.jdbc.Driver -->
+        <mysql.driver.version>8.0.15</mysql.driver.version>
+        <!-- mysql CDC连接器 -->
+        <!-- 建议使用2.2.x 以上 -->
+        <!-- 可以使用flink cdc动态加载表的特性 -->
+        <mysql-cdc.version>2.2.1</mysql-cdc.version>
+        <!-- 版本需要严格一致的组件 end -->
+
+        <!-- scala 项目中没有用到 -->
+        <scala.binary.version>2.11</scala.binary.version>
+        <!-- log -->
+        <log4j2.version>2.18.0</log4j2.version>
+        <!-- hbase  -->
+        <hbase.version>2.0.6</hbase.version>
+        <!-- hadoop -->
+        <hadoop.version>2.7.7</hadoop.version>
+        <!-- Redis 连接器 -->
+        <bahire.redis.connector.version>1.1.0</bahire.redis.connector.version>
+        <zookeeper.version>3.4.10</zookeeper.version>
+        <!-- 注意使用 3.5.1+, 因为mybatis-plus自动生成器和之前的写法不兼容 -->
+        <mybatis-plus.version>3.5.3</mybatis-plus.version>
+        <!-- mybatis-plus 模板引擎 -->
+        <velocity-engine.version>2.3</velocity-engine.version>
+        <!-- Jedis版本尽量和Apache-Bachir-Flink自带的Jedis版本一致 -->
+        <jedis.version>3.7.1</jedis.version>
+        <!-- CH JDBC版本推荐使用 0.3, 0.4的版本是要 JDK 17 -->
+        <clickhouse-jdbc.version>0.3.2-patch11</clickhouse-jdbc.version>
+        <!-- groovy 4.0 -->
+        <groovy.version>4.0.10</groovy.version>
+        <!-- aviator 5 -->
+        <aviator.version>5.3.3</aviator.version>
+        <!-- maven编译常用配置 -->
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!--
+     知识点：
+
+     1.
+     scope标签的值：
+     compile: 默认值，依赖会参与编译，测试，以及打包
+     test: 依赖只会参与测试
+     provided：依赖不会加入打包，只运行在编译阶段以及测试阶段，运行阶段不包含这个依赖
+     import: 依赖实现多继承，import值只能用于 dependencyManagement
+
+     2.
+     classifier标签：
+     可以将包的坐标定位扩展至： groupId-artifactId-version-classifier
+
+     3.
+     Option标签：使得依赖没有传递性
+
+    A依赖C，B依赖A，B使用C依赖包的方法，C依赖写入了A的jar包里。
+    如果Option标签的值是True, C依赖没有写入了A的jar包里，
+    B无法使用C依赖包的方法，
+    B想使用C依赖包的方法，必须对C依赖包的方法做显示的引入。
+
+     -->
+
+
+    <!-- 全局依赖：所有模块都会导入的依赖 -->
+    <!-- Flink 模块不需要用到SpringBoot, 打包的时候可以去掉 -->
+    <dependencies>
+        <!-- SpringBoot核心启动，包括了自动配置,日志,yaml -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <!-- 去掉SpringBoot的logging依赖 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>import</scope>
+        </dependency>
+        <!-- SpringBoot从2.2版本起，默认使用Junit5测试框架 -->
+        <!-- Junit5 的包在org.junit.jupiter.* -->
+        <!-- Junit4 的包在org.junit.test.* -->
+        <!-- SpringBoot从2.2版本后，已去除了Junit4的测试引擎 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- lombok注解依赖 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- SpringBoot 依赖，注意不要使用 Spring-boot-starter-parent -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ========== Flink ========== -->
+
+            <!-- Flink 基础依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-java</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Flink WebUI -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-runtime-web_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Flink流批处理依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Table/SQL Api 依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-api-java</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Table/SQL Api 扩展依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-common</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- bridge桥接器，主要负责Table API和 DataStream API的连接支持 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-api-java-bridge_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Flink Planner 依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-table-planner_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Flink clients 依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-clients_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- ========== Flink Connector (连接器) ========== -->
+
+            <!-- Redis Connector -->
+            <dependency>
+                <groupId>org.apache.bahir</groupId>
+                <artifactId>flink-connector-redis_${scala.binary.version}</artifactId>
+                <version>${bahire.redis.connector.version}</version>
+            </dependency>
+
+            <!-- Kafka Connector -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-kafka_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- Jdbc Connector -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-connector-jdbc_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+
+            <!-- ========== Flink CDC ========== -->
+
+            <!-- 注意：这里不要选择 flink-connector-mysql-cdc 依赖 -->
+            <!-- mysql CDC连接器 -->
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-sql-connector-mysql-cdc</artifactId>
+                <version>${mysql-cdc.version}</version>
+            </dependency>
+
+
+            <!-- ========== Flink 测试框架 ========== -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-test-utils_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- Flink 测试框架一定要加上下面的依赖 -->
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+                <scope>test</scope>
+                <classifier>tests</classifier>
+            </dependency>
+
+            <!-- ============== json处理依赖：这里使用阿里的fastjson2 ============== -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+            <!--fastjson2对SpringFramework等框架的支持现独立在extension包-->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2-extension</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+
+            <!-- ============ log =================== -->
+
+            <!-- log4j2依赖 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <!-- slf4j依赖 -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <!-- log4j2和slf4j桥接依赖 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+
+            <!-- =============== hbase ===================== -->
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+
+            <!-- ============ 其他 =================== -->
+
+            <!-- Jedis -->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+
+            <!-- clickhouse jdbc driver -->
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse-jdbc.version}</version>
+            </dependency>
+
+            <!-- mysql jdbc driver -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.driver.version}</version>
+            </dependency>
+
+            <!-- mybatis-plus -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- mybatis-plus 代码生成器 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- mybatis-plus 代码模板引擎 -->
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>${velocity-engine.version}</version>
+            </dependency>
+
+
+            <!-- Groovy -->
+            <dependency>
+                <groupId>org.apache.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
+            </dependency>
+
+            <!-- Aviator -->
+            <dependency>
+                <groupId>com.googlecode.aviator</groupId>
+                <artifactId>aviator</artifactId>
+                <version>${aviator.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>

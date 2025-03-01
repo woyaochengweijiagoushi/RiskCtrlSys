@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/RiskEngine-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-commons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-commons/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-dao/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-dao/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-flink/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-flink/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-model/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-model/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-utils/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RiskEngine-utils/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/untitled/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/untitled/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

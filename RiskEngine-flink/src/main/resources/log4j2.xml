@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration monitorInterval="5">
+    <Properties>
+        <!-- 日志的格式，以%开头的参数表示占位符 -->
+        <property name="LOG_PATTERN" value="%date{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+        <!-- 日志的级别 -->
+        <property name="LOG_LEVEL" value="error"/>
+    </Properties>
+
+
+    <appenders>
+        <!-- 控制台日志输出 -->
+        <console name="Console" target="SYSTEM_OUT">
+            <!-- 日志输出的格式 -->
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <!-- 日志级别过滤器 -->
+            <ThresholdFilter level="${LOG_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+        </console>
+    </appenders>
+
+    <!-- 日志记录器配置 -->
+    <loggers>
+        <!-- 根日志记录器 -->
+        <root level="${LOG_LEVEL}">
+            <!-- 将日志记录到控制台日志器 -->
+            <appender-ref ref="Console"/>
+        </root>
+    </loggers>
+
+
+</configuration>

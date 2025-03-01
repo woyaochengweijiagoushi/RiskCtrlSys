@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>JuegeRiskCtrlSys</artifactId>
+        <groupId>com.juege</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>RiskEngine-utils</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!--FastJson2-->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2-extension</artifactId>
+        </dependency>
+
+        <!-- Redis -->
+        <!--
+
+         知识点：
+
+         一：
+
+         Jedis连接驱动缺点：
+         Jedis基于TCP的阻塞性的连接方式
+         1. 阻塞性IO
+         2. 不能异步
+         3. 线程不安全的
+
+         Lettuce连接驱动优点：
+         Lettuce基于Netty的多路复用的异步非阻塞的连接方式，
+         1. 线程安全
+         2. 基于Netty框架的事件驱动通信，可以异步的
+         3. 适合于分布式的缓存。
+
+         二：
+
+         Springboot 1.x 默认redis驱动使用Jedis
+         Springboot 2.x 默认redis驱动使用Lettuce
+
+
+          Jedis驱动使用连接池是 commons-pool2
+          Lettuce驱动使用连接池也是 commons-pool2
+
+         -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter</artifactId>
+                    </exclusion>
+                </exclusions>
+        </dependency>
+
+        <!-- 显式导入 commons-pool2 连接池 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+
+
+        <!--
+            hbase 的依赖只需要导入 hbase-client，
+            但要去掉hbase-client包里的 hadoop-common依赖,
+            hadoop-common依赖单独导入
+         -->
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-reload4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-reload4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- model模块 -->
+        <dependency>
+            <groupId>com.juege</groupId>
+            <artifactId>RiskEngine-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- commons模块 -->
+        <dependency>
+            <groupId>com.juege</groupId>
+            <artifactId>RiskEngine-commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
